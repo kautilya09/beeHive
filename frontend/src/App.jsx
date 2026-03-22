@@ -1,5 +1,8 @@
 import { useEffect } from "react";
 import axios from "axios";
+import RootLayout from "./Layout/RootLayout"
+import DashboardPage from "./Pages/DashboardPage"
+
 function App() {
   useEffect(() => {
     axios.get("http://localhost:2026/test")
@@ -7,6 +10,10 @@ function App() {
       .catch(err => console.log(err));
   }, []);
 
-  return <h1>App Running</h1>;
+  return (
+    <RootLayout>
+      <DashboardPage />
+    </RootLayout>
+  )
 }
 export default App;
