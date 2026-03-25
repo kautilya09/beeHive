@@ -1,11 +1,10 @@
-import { Sidebar } from "./components/dashboard/Sidebar"
-import { Header } from "./components/dashboard/Header"
-import { TaskBoard } from "./components/dashboard/TaskBoard"
-import { TeamMembers } from "./components/dashboard/TeamMembers"
-import { ActivityPanel } from "./components/dashboard/activity-panel"
-import { StatsCards } from "./components/dashboard/StatsCards"
-import { MobileSidebar } from "./components/dashboard/MobileSidebar"
-import { ActivityPanel } from "./components/dashboard/ActivityPanel"
+import { Sidebar } from "../components/dashboard/Sidebar"
+import { Header } from "../components/dashboard/Header"
+import { TaskBoard } from "../components/dashboard/TaskBoard"
+import { TeamMembers } from "../components/dashboard/TeamMembers"
+import { StatsCards } from "../components/dashboard/StatsCards"
+import { MobileSidebar } from "../components/dashboard/MobileSidebar"
+import { ActivityPanel } from "../components/dashboard/ActivityPanel"
 function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
