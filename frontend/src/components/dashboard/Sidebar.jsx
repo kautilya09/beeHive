@@ -7,18 +7,18 @@ import {
   Settings,
   GraduationCap,
 } from "lucide-react"
-import { useState } from "react"
+import { Link, useLocation } from "react-router-dom"
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "#" },
-  { icon: Users, label: "Teams", href: "#" },
-  { icon: CheckSquare, label: "Tasks", href: "#" },
-  { icon: FolderOpen, label: "Files", href: "#" },
-  { icon: Settings, label: "Settings", href: "#" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: Users, label: "Teams", href: "/teams" },
+  { icon: CheckSquare, label: "Tasks", href: "/tasks" },
+  { icon: FolderOpen, label: "Files", href: "/files" },
+  { icon: Settings, label: "Settings", href: "/settings" },
 ]
 
 export function Sidebar() {
-  const [activeItem, setActiveItem] = useState("Dashboard")
+  const location = useLocation()
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar">
@@ -41,13 +41,12 @@ export function Sidebar() {
 
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = activeItem === item.label
+          const isActive = location.pathname === item.href
 
           return (
-            <a
+            <Link
               key={item.label}
-              href={item.href}
-              onClick={() => setActiveItem(item.label)}
+              to={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
@@ -60,7 +59,7 @@ export function Sidebar() {
               {isActive && (
                 <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
               )}
-            </a>
+            </Link>
           )
         })}
       </nav>
@@ -80,4 +79,4 @@ export function Sidebar() {
       </div>
     </aside>
   )
-}
+}
