@@ -120,17 +120,21 @@ export function TaskBoard() {
     },
   ])
 
-  const [newTask, setNewTask] = useState("")
+  const [newTask, setNewTask] = useState({
+    title:"",
+    description:"",
+    priority: "low",
+  })
   
   const addTask = () => {
-    if (!newTask.trim()) return
+    if (!newTask.title.trim()) return
 
     const task = {
       id: Date.now(),
-      title: newTask, 
-      description: "Quick Task",
+      title: newTask.title, 
+      description: newTask.description,
       status: "todo",
-      priority: "low",
+      priority: newTask.priority,
       tags: ["General"],
       dueDate: "Apr 5",
       comments: 0,
@@ -138,7 +142,12 @@ export function TaskBoard() {
     }
 
     setTasks(prev => [...prev, task])
-    setNewTask("")
+
+    setNewTask({
+      title:"",
+      description: "",
+      priority: "low",
+    })
   }
 
   const updateTaskStatus = (id, newStatus) => {
@@ -158,14 +167,37 @@ export function TaskBoard() {
         <h2 className="text-lg font-semibold text-foreground">Task Board</h2>
         <div className="flex gap-2">
           <input
-            value={newTask}
-            onChange={(e)=>setNewTask(e.target.value)}
-            onKeyDown={(e)=>{
+            value={newTask.title}
+            onChange={(e)=>setNewTask(prev => ({
+              ...prev, title: e.target.value }))
+            }
+            onKeyDown={(e) => {
               if (e.key === "Enter") addTask()
-            }}
-            placeholder="Add new task..."
-            className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/50"
+            }}         
+            placeholder="Task Title"
+            className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
           />
+          <input
+            value={newTask.description}
+            onChange={(e)=>setNewTask(prev => ({
+              ...prev, description: e.target.value }))
+            }          
+            placeholder="Description"
+            className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+          />
+          
+          <select
+            value={newTask.priority}
+            onChange={(e)=>
+              setNewTask(prev => ({ ...prev, priority: e.target.value}))
+            }
+            className="rounded-md border border-border bg-background px-2 py-2 text-sm text-foreground"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+
 
           <button
             onClick={addTask}
