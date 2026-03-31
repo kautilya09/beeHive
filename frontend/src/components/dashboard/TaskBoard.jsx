@@ -2,16 +2,19 @@ import { Card } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { MoreHorizontal, Calendar, MessageSquare } from "lucide-react"
 import { cn } from "../../lib/utils"
-
-const columns = [/* keep SAME data, just remove `as const` */]
+import { useState } from "react"
 
 const priorityColors = {
   low: "bg-chart-2/20 text-chart-2",
   medium: "bg-chart-3/20 text-chart-3",
   high: "bg-destructive/20 text-destructive",
 }
-
-function TaskCard({ task }) {
+const columns = [
+  {id:"todo", title:"To Do", color:"bg-orange-500" },
+  {id: "inprogress", title:"In Progress", color: "bg-blue-500"},
+  {id: "done", title: "Done", color: "bg-green-500"},
+]
+function TaskCard({ task, updateTaskStatus, deleteTask }) {
   return (
     <Card className="group cursor-pointer border-border bg-card p-4 hover:border-primary/50">
       <div className="flex items-start justify-between">
@@ -26,8 +29,10 @@ function TaskCard({ task }) {
           ))}
         </div>
 
-        <button className="rounded p-1 opacity-0 hover:bg-secondary group-hover:opacity-100">
-          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+        <button 
+        onClick={() => deleteTask(task.id)}
+        className="rounded p-1 opacity-0 hover:bg-red-500/20 group-hover:opacity-100">
+          <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-red-400" />
         </button>
       </div>
 
@@ -35,7 +40,24 @@ function TaskCard({ task }) {
       <p className="mt-1 text-xs text-muted-foreground">
         {task.description}
       </p>
-
+      <div className="mt-3 flex gap-2">
+        {task.status === "todo" && (
+          <button
+            onClick={() => updateTaskStatus(task.id, "inprogress")}
+            className="transition-all duration-200 rounded-md border border-blue-500/40 px-3 py-1 text-xs text-blue-400 hover:bg-blue-500/20 hover:scale-105 hover:shadow-md"
+          >
+            In Progress →
+          </button>
+        )}
+        {task.status === "inprogress" && (
+          <button
+            onClick={() => updateTaskStatus(task.id, "done")}
+            className="transition-all duration-200 rounded-md border border-green-500/40 px-3 py-1 text-xs text-green-400 hover:bg-green-500/20 hover:scale-105 hover:shadow-md"
+          >
+            Done →
+          </button>
+        )}
+      </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -73,13 +95,85 @@ function TaskCard({ task }) {
 }
 
 export function TaskBoard() {
+  const [tasks, setTasks] = useState([
+    {
+      id: 1,
+      title: "Research project proposal", 
+      description: "Draft initial proposal",
+      status: "todo",
+      priority: "high",
+      tags: ["Research"],
+      dueDate: "Mar 30",
+      comments: 2,
+      assignees: [],
+    },
+    {
+      id: 2,
+      title: "Literature Review", 
+      description: "Collect sources",
+      status: "inprogress",
+      priority: "medium",
+      tags: ["Writing"],
+      dueDate: "Apr 2",
+      comments: 1,
+      assignees: [],
+    },
+  ])
+
+  const [newTask, setNewTask] = useState("")
+  
+  const addTask = () => {
+    if (!newTask.trim()) return
+
+    const task = {
+      id: Date.now(),
+      title: newTask, 
+      description: "Quick Task",
+      status: "todo",
+      priority: "low",
+      tags: ["General"],
+      dueDate: "Apr 5",
+      comments: 0,
+      assignees: [],
+    }
+
+    setTasks(prev => [...prev, task])
+    setNewTask("")
+  }
+
+  const updateTaskStatus = (id, newStatus) => {
+    setTasks(prev =>
+      prev.map(task =>
+        task.id === id ? {...task, status: newStatus} : task
+      )
+    )
+  }
+
+  const deleteTask = (id) => {
+    setTasks(prev => prev.filter(task => task.id !== id))
+  }
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-foreground">Task Board</h2>
-        <button className="rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90">
-          Add Task
-        </button>
+        <div className="flex gap-2">
+          <input
+            value={newTask}
+            onChange={(e)=>setNewTask(e.target.value)}
+            onKeyDown={(e)=>{
+              if (e.key === "Enter") addTask()
+            }}
+            placeholder="Add new task..."
+            className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/50"
+          />
+
+          <button
+            onClick={addTask}
+            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+          >
+            Add
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -91,14 +185,22 @@ export function TaskBoard() {
                 {column.title}
               </h3>
               <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-                {column.tasks.length}
+                {tasks.filter(task => task.status === column.id).length}
               </span>
             </div>
 
             <div className="space-y-3">
-              {column.tasks.map((task) => (
-                <TaskCard key={task.id} task={task} />
-              ))}
+              {tasks
+                .filter(task => task.status === column.id)
+                .map(task=>(
+                  <TaskCard 
+                  key={task.id} 
+                  task={task} 
+                  updateTaskStatus = {updateTaskStatus}
+                  deleteTask = {deleteTask}
+                  />
+                ))
+              }
             </div>
           </div>
         ))}
