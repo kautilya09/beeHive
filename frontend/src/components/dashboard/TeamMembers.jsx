@@ -1,7 +1,8 @@
 import { Card } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
-import { MoreHorizontal, Mail } from "lucide-react"
+import { MoreHorizontal, Mail, Omega } from "lucide-react"
+import { useState } from "react"
 
 const members = [
   {
@@ -49,19 +50,78 @@ const statusColors = {
 }
 
 export function TeamMembers() {
+  const [membersList, setMembersList] = useState(members)
+  const removeMember = (id) => {
+    setMembersList(prev => prev.filter(m => m.id !== id))
+  }
+  
+  const [newMember, setNewMember] = useState({
+    name: "",
+    role: ""
+  })
+  const addMember = () => {
+    if(!newMember.name.trim()) return
+
+    const member = {
+      id: Date.now().toString(),
+      name: newMember.name,
+      role: newMember.role || "Member",
+      email: "new@team.com",
+      status: "online",
+      tasksCompleted: 0,
+      image: "",
+    }
+
+    setMembersList(prev=> [...prev, member])
+    setNewMember("")
+  }
   return (
     <Card className="border-border bg-card p-5">
+
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-foreground">
           Team Members
         </h3>
         <button className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground">
-          View All
+          Manage
+        </button>
+      </div>
+
+      <div className="mt-4 flex gap-2">
+        <input 
+          value={newMember.name}
+          onChange={(e)=>setNewMember(prev => ({
+            ...prev,
+            name: e.target.value
+          }))
+          }
+          onKeyDown={(e) => {
+          if (e.key === "Enter") addMember()
+          }}
+          placeholder="Name"
+          className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+        />
+        <input 
+          value={newMember.role}
+          onChange={(e)=>setNewMember(prev => ({
+            ...prev,
+            role: e.target.value
+          }))
+          }
+          placeholder="Role"
+          className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+        />
+
+        <button
+        onClick={addMember}
+        className="rounded-md bg-primary px-3 py-2 text-sm text-primary- foreground hover:bg-primary/90"
+        >
+          Add
         </button>
       </div>
 
       <div className="mt-4 space-y-3">
-        {members.map((member) => (
+        {membersList.map((member) => (
           <div
             key={member.id}
             className="group flex items-center justify-between rounded-lg p-2 hover:bg-secondary"
@@ -104,8 +164,11 @@ export function TeamMembers() {
                 <Mail className="h-4 w-4 text-muted-foreground" />
               </button>
 
-              <button className="rounded p-1 opacity-0 hover:bg-muted group-hover:opacity-100">
-                <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+              <button
+              onClick={() => removeMember(member.id)}
+              className="rounded p-1 opacity-0 hover:bg-red-500/20 group-hover:opacity-100"
+              >
+                <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-red-400" />
               </button>
             </div>
           </div>
