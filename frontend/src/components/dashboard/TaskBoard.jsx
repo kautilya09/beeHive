@@ -14,7 +14,7 @@ const columns = [
   {id: "inprogress", title:"In Progress", color: "bg-blue-500"},
   {id: "done", title: "Done", color: "bg-green-500"},
 ]
-function TaskCard({ task, updateTaskStatus, deleteTask }) {
+function TaskCard({ task, updateTaskStatus, deleteTask, editable }) {
   return (
     <Card className="group cursor-pointer border-border bg-card p-4 hover:border-primary/50">
       <div className="flex items-start justify-between">
@@ -29,35 +29,36 @@ function TaskCard({ task, updateTaskStatus, deleteTask }) {
           ))}
         </div>
 
-        <button 
-        onClick={() => deleteTask(task.id)}
-        className="rounded p-1 opacity-0 hover:bg-red-500/20 group-hover:opacity-100">
-          <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-red-400" />
-        </button>
+          <button 
+          onClick={() => deleteTask(task.id)}
+          className="rounded p-1 opacity-0 hover:bg-red-500/20 group-hover:opacity-100">
+            <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-red-400" />
+          </button>
       </div>
 
       <h4 className="mt-3 text-sm font-medium text-foreground">{task.title}</h4>
       <p className="mt-1 text-xs text-muted-foreground">
         {task.description}
       </p>
-      <div className="mt-3 flex gap-2">
-        {task.status === "todo" && (
-          <button
-            onClick={() => updateTaskStatus(task.id, "inprogress")}
-            className="transition-all duration-200 rounded-md border border-blue-500/40 px-3 py-1 text-xs text-blue-400 hover:bg-blue-500/20 hover:scale-105 hover:shadow-md"
-          >
-            In Progress →
-          </button>
-        )}
-        {task.status === "inprogress" && (
-          <button
-            onClick={() => updateTaskStatus(task.id, "done")}
-            className="transition-all duration-200 rounded-md border border-green-500/40 px-3 py-1 text-xs text-green-400 hover:bg-green-500/20 hover:scale-105 hover:shadow-md"
-          >
-            Done →
-          </button>
-        )}
-      </div>
+
+        <div className="mt-3 flex gap-2">
+          {task.status === "todo" && (
+            <button
+              onClick={() => updateTaskStatus(task.id, "inprogress")}
+              className="transition-all duration-200 rounded-md border border-blue-500/40 px-3 py-1 text-xs text-blue-400 hover:bg-blue-500/20 hover:scale-105 hover:shadow-md"
+            >
+              In Progress →
+            </button>
+          )}
+          {task.status === "inprogress" && (
+            <button
+              onClick={() => updateTaskStatus(task.id, "done")}
+              className="transition-all duration-200 rounded-md border border-green-500/40 px-3 py-1 text-xs text-green-400 hover:bg-green-500/20 hover:scale-105 hover:shadow-md"
+            >
+              Done →
+            </button>
+          )}
+        </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -94,7 +95,7 @@ function TaskCard({ task, updateTaskStatus, deleteTask }) {
   )
 }
 
-export function TaskBoard() {
+export function TaskBoard( {editable = false} ) {
   const [tasks, setTasks] = useState([
     {
       id: 1,
@@ -165,47 +166,49 @@ export function TaskBoard() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-foreground">Task Board</h2>
-        <div className="flex gap-2">
-          <input
-            value={newTask.title}
-            onChange={(e)=>setNewTask(prev => ({
-              ...prev, title: e.target.value }))
-            }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") addTask()
-            }}         
-            placeholder="Task Title"
-            className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
-          />
-          <input
-            value={newTask.description}
-            onChange={(e)=>setNewTask(prev => ({
-              ...prev, description: e.target.value }))
-            }          
-            placeholder="Description"
-            className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
-          />
-          
-          <select
-            value={newTask.priority}
-            onChange={(e)=>
-              setNewTask(prev => ({ ...prev, priority: e.target.value}))
-            }
-            className="rounded-md border border-border bg-background px-2 py-2 text-sm text-foreground"
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
+        {editable && (
+          <div className="flex gap-2">
+            <input
+              value={newTask.title}
+              onChange={(e)=>setNewTask(prev => ({
+                ...prev, title: e.target.value }))
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addTask()
+              }}         
+              placeholder="Task Title"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+            />
+            <input
+              value={newTask.description}
+              onChange={(e)=>setNewTask(prev => ({
+                ...prev, description: e.target.value }))
+              }          
+              placeholder="Description"
+              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+            />
+            
+            <select
+              value={newTask.priority}
+              onChange={(e)=>
+                setNewTask(prev => ({ ...prev, priority: e.target.value}))
+              }
+              className="rounded-md border border-border bg-background px-2 py-2 text-sm text-foreground"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
 
 
-          <button
-            onClick={addTask}
-            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
-          >
-            Add
-          </button>
-        </div>
+            <button
+              onClick={addTask}
+              className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+            >
+              Add
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -230,6 +233,7 @@ export function TaskBoard() {
                   task={task} 
                   updateTaskStatus = {updateTaskStatus}
                   deleteTask = {deleteTask}
+                  editable={editable}
                   />
                 ))
               }

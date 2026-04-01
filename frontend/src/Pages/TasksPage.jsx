@@ -7,7 +7,7 @@ function TasksPage() {
         <h1 className="text-2xl font-bold text-foreground">Tasks</h1>
         <p className="mt-1 text-muted-foreground">Track and manage all your team tasks.</p>
       </div>
-      <TaskBoard />
+      <TaskBoard editable={true} />
     </main>
   )
 }

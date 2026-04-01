@@ -51,7 +51,7 @@ const activityColors = {
   file: "bg-chart-3/20 text-chart-3",
 }
 
-export function ActivityPanel() {
+export function ActivityPanel({editable = false}) {
   const [files, setFiles] = useState([
     {id: "1", name: "Research_Data.xslx", size: "2.4 MB", date: "Today"},
     {id: "2", name: "Project_Proposal.pdf", size: "1.8 MB", date: "Yesterday"},
@@ -113,23 +113,25 @@ export function ActivityPanel() {
       <Card className="border-border bg-card p-5">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-foreground">Recent Files</h3>
-          <div className="flex gap-2">
-            <input 
-              value={newFile}
-              onChange={(e)=> setNewFile(e.target.value)}
-              onKeyDown={(e)=>{
-                if (e.key==="Enter") addFile()
-              }}
-              placeholder="Add file..."
-              className="rounded-md border border-border bg-background px-3 py-1 text-xs text-foreground"
-            />
-            <button
-              onClick={addFile}
-              className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
-            >
-              Upload
-            </button>
-          </div>
+          {editable && (
+            <div className="flex gap-2">
+              <input
+                value={newFile}
+                onChange={(e)=> setNewFile(e.target.value)}
+                onKeyDown={(e)=>{
+                  if (e.key==="Enter") addFile()
+                }}
+                placeholder="Add file..."
+                className="rounded-md border border-border bg-background px-3 py-1 text-xs text-foreground"
+              />
+              <button
+                onClick={addFile}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                Upload
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="mt-4 space-y-3">
@@ -148,12 +150,14 @@ export function ActivityPanel() {
                 </div>
               </div>
 
-              <button
-                onClick={()=> deleteFile(file.id)}
-                className="text-xs text-red-400 opacity-0 group-hover:opacity-100"
-              >
-                Delete
-              </button>
+              {editable && (
+                <button
+                  onClick={()=> deleteFile(file.id)}
+                  className="text-xs text-red-400 opacity-0 group-hover:opacity-100"
+                >
+                  Delete
+                </button>
+              )}
             </div>
           ))}
         </div>

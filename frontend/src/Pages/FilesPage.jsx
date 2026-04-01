@@ -8,7 +8,7 @@ function FilesPage() {
         <p className="mt-1 text-muted-foreground">All your team files and recent activity.</p>
       </div>
       <div className="max-w-xl">
-        <ActivityPanel />
+        <ActivityPanel editable={true} />
       </div>
     </main>
   )
