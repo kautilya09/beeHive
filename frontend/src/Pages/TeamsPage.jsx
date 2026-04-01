@@ -8,7 +8,7 @@ function TeamsPage() {
         <p className="mt-1 text-muted-foreground">Manage your team and collaborate together.</p>
       </div>
       <div className="max-w-xl">
-        <TeamMembers />
+        <TeamMembers editable={true} />
       </div>
     </main>
   )

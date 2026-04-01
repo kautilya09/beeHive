@@ -28,9 +28,9 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-sidebar-foreground">
-            TeamSpace
+            Collabrix
           </span>
-          <span className="text-xs text-muted-foreground">Student Hub</span>
+          <span className="text-xs text-muted-foreground">Collaborate. Organize. Achieve.</span>
         </div>
       </div>
 
@@ -79,4 +79,4 @@ export function Sidebar() {
       </div>
     </aside>
   )
-}
+}
