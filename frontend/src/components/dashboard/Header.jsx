@@ -1,16 +1,10 @@
 import { Bell, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu"
+import { useNavigate } from "react-router-dom"
 
 export function Header() {
+  const navigate = useNavigate()
   return (
     <div className="flex items-center gap-4">
       <Button
@@ -23,9 +17,8 @@ export function Header() {
         <span className="sr-only">Notifications</span>
       </Button>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
           <Button
+            onClick={()=> navigate("/settings")}
             variant="ghost"
             className="flex items-center gap-3 px-2 hover:bg-secondary"
           >
@@ -41,20 +34,6 @@ export function Header() {
             </div>
             <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" />
           </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Team</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-destructive">
-            Log out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
   )
 }
