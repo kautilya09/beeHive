@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Card } from "../ui/card"
 import { FileText, Upload, MessageSquare, CheckCircle, Clock } from "lucide-react"
 
@@ -36,12 +37,6 @@ const activities = [
   },
 ]
 
-const files = [
-  { id: "1", name: "Research_Data.xlsx", size: "2.4 MB", date: "Today" },
-  { id: "2", name: "Project_Proposal.pdf", size: "1.8 MB", date: "Yesterday" },
-  { id: "3", name: "Presentation_v2.pptx", size: "5.2 MB", date: "Mar 18" },
-]
-
 const activityIcons = {
   upload: Upload,
   comment: MessageSquare,
@@ -57,6 +52,29 @@ const activityColors = {
 }
 
 export function ActivityPanel() {
+  const [files, setFiles] = useState([
+    {id: "1", name: "Research_Data.xslx", size: "2.4 MB", date: "Today"},
+    {id: "2", name: "Project_Proposal.pdf", size: "1.8 MB", date: "Yesterday"},
+    {id: "3", name: "Presentation_v2.pptx", size: "5.2 MB", date: "Mar 18"},
+  ])
+
+  const [newFile, setNewFile] = useState("")
+  const addFile = () => {
+    if (!newFile.trim()) return
+
+    const file = {
+      id: Date.now().toString(),
+      name: newFile,
+      size: "1 MB",
+      date: "Now",
+    }
+    setFiles(prev => [...prev, file])
+    setNewFile("")
+  }
+  
+  const deleteFile = (id) => {
+    setFiles(prev => prev.filter(file => file.id !== id))
+  }
   return (
     <div className="space-y-6">
       <Card className="border-border bg-card p-5">
@@ -95,14 +113,29 @@ export function ActivityPanel() {
       <Card className="border-border bg-card p-5">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-semibold text-foreground">Recent Files</h3>
-          <button className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground">
-            Upload
-          </button>
+          <div className="flex gap-2">
+            <input 
+              value={newFile}
+              onChange={(e)=> setNewFile(e.target.value)}
+              onKeyDown={(e)=>{
+                if (e.key==="Enter") addFile()
+              }}
+              placeholder="Add file..."
+              className="rounded-md border border-border bg-background px-3 py-1 text-xs text-foreground"
+            />
+            <button
+              onClick={addFile}
+              className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              Upload
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 space-y-3">
           {files.map((file) => (
-            <div key={file.id} className="flex items-center justify-between rounded-lg p-2 hover:bg-secondary">
+            <div key={file.id} className="group flex items-center justify-between rounded-lg p-2 hover:bg-secondary">
+
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
                   <FileText className="h-5 w-5 text-muted-foreground" />
@@ -114,6 +147,13 @@ export function ActivityPanel() {
                   </p>
                 </div>
               </div>
+
+              <button
+                onClick={()=> deleteFile(file.id)}
+                className="text-xs text-red-400 opacity-0 group-hover:opacity-100"
+              >
+                Delete
+              </button>
             </div>
           ))}
         </div>
