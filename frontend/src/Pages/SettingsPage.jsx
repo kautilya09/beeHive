@@ -1,5 +1,6 @@
 import { User, Bell, Shield, Palette, Globe, LogOut, ChevronRight } from "lucide-react"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 const settingsSections = [
   { icon: User, label: "Profile", desc: "Manage your profile information" },
@@ -11,6 +12,12 @@ const settingsSections = [
 
 function SettingsPage() {
   const [activeSection, setActiveSection] = useState("Profile")
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.clear();
+    navigate("/login", { replace: true });
+  }
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
@@ -45,7 +52,10 @@ function SettingsPage() {
               </button>
             ))}
             <div className="mt-2 border-t border-border pt-2">
-              <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-red-500 hover:bg-red-500/10 transition-colors">
+              <button
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-red-500 hover:bg-red-500/10 transition-colors"
+              onClick={handleLogout}
+              >
                 <LogOut className="h-4 w-4 shrink-0" />
                 Logout
               </button>

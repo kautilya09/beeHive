@@ -1,20 +1,24 @@
-import { Sidebar } from "../components/dashboard/Sidebar"
-import { MobileSidebar } from "../components/dashboard/MobileSidebar"
-import { Header } from "../components/dashboard/Header"
+import { Sidebar } from "../components/dashboard/Sidebar";
+import { MobileSidebar } from "../components/dashboard/MobileSidebar";
+import { Header } from "../components/dashboard/Header";
+import { Outlet } from "react-router-dom";
 
-function DashboardLayout({ children }) {
+function DashboardLayout() {
   return (
     <div className="min-h-screen bg-background">
-
+      {/* Sidebar for large screens */}
       <div className="hidden lg:block">
         <Sidebar />
       </div>
 
-
+      {/* Main Content Area */}
       <div className="lg:pl-64">
+        {/* Header */}
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:px-6">
           <div className="flex items-center gap-4">
             <MobileSidebar />
+
+            {/* Search Bar */}
             <div className="relative hidden sm:block">
               <svg
                 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -38,14 +42,17 @@ function DashboardLayout({ children }) {
             </div>
           </div>
 
+          {/* Top Right User Section */}
           <Header />
         </header>
 
-
-        {children}
+        {/* Routed Page Content */}
+        <main className="p-4 lg:p-6">
+          <Outlet />
+        </main>
       </div>
     </div>
-  )
+  );
 }
 
-export default DashboardLayout
+export default DashboardLayout;
