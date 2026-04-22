@@ -1,8 +1,8 @@
-import { useEffect } from "react";
-import axios from "axios";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 import { LoginPage } from "./Pages/LoginPage";
+import { SignupPage } from "./Pages/SignupPage";
 import { ProtectedRoute } from "./components/Auth/ProtectedRoute";
 
 import RootLayout from "./Layout/RootLayout";
@@ -13,17 +13,20 @@ import TeamsPage from "./Pages/TeamsPage";
 import TasksPage from "./Pages/TasksPage";
 import FilesPage from "./Pages/FilesPage";
 import SettingsPage from "./Pages/SettingsPage";
+import BrowseProjectsPage from "./Pages/BrowseProjectsPage";
+import CreateProjectPage from "./Pages/CreateProjectPage";
+import ProjectDetailPage from "./Pages/ProjectDetailPage";
 
 function App() {
-  const isAuthenticated =
-    localStorage.getItem("isAuthenticated") === "true";
+  const { isAuthenticated, loading } = useAuth();
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:2026/test")
-      .then((res) => console.log(res.data))
-      .catch((err) => console.log(err));
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -40,7 +43,7 @@ function App() {
           }
         />
 
-        {/* Public Route */}
+        {/* Public Routes */}
         <Route
           path="/login"
           element={
@@ -48,6 +51,16 @@ function App() {
               <Navigate to="/dashboard" replace />
             ) : (
               <LoginPage />
+            )
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <SignupPage />
             )
           }
         />
@@ -60,6 +73,9 @@ function App() {
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/files" element={<FilesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/projects" element={<BrowseProjectsPage />} />
+            <Route path="/projects/create" element={<CreateProjectPage />} />
+            <Route path="/projects/:id" element={<ProjectDetailPage />} />
           </Route>
         </Route>
       </Route>

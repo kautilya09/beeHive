@@ -4,25 +4,28 @@ import {
   Users,
   CheckSquare,
   FolderOpen,
+  FolderKanban,
   Settings,
   GraduationCap,
   Menu,
   X,
 } from "lucide-react"
 import { useState } from "react"
+import { Link, useLocation } from "react-router-dom"
 import { Button } from "../ui/button"
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "#" },
-  { icon: Users, label: "Teams", href: "#" },
-  { icon: CheckSquare, label: "Tasks", href: "#" },
-  { icon: FolderOpen, label: "Files", href: "#" },
-  { icon: Settings, label: "Settings", href: "#" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: FolderKanban, label: "Projects", href: "/projects" },
+  { icon: Users, label: "Teams", href: "/teams" },
+  { icon: CheckSquare, label: "Tasks", href: "/tasks" },
+  { icon: FolderOpen, label: "Files", href: "/files" },
+  { icon: Settings, label: "Settings", href: "/settings" },
 ]
 
 export function MobileSidebar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [activeItem, setActiveItem] = useState("Dashboard")
+  const location = useLocation()
 
   return (
     <>
@@ -55,9 +58,9 @@ export function MobileSidebar() {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-semibold text-sidebar-foreground">
-                TeamSpace
+                Collabrix
               </span>
-              <span className="text-xs text-muted-foreground">Student Hub</span>
+              <span className="text-xs text-muted-foreground">Collaborate. Organize. Achieve.</span>
             </div>
           </div>
 
@@ -73,16 +76,13 @@ export function MobileSidebar() {
 
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = activeItem === item.label
+            const isActive = location.pathname === item.href
 
             return (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
-                onClick={() => {
-                  setActiveItem(item.label)
-                  setIsOpen(false)
-                }}
+                to={item.href}
+                onClick={() => setIsOpen(false)}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
@@ -95,7 +95,7 @@ export function MobileSidebar() {
                 {isActive && (
                   <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
                 )}
-              </a>
+              </Link>
             )
           })}
         </nav>

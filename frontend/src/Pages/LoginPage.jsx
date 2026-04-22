@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Eye, EyeOff, Users } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export const LoginPage = () => {
-    const navigate = useNavigate();
-    localStorage.setItem("isAuthenticated", "true");
-    navigate("/dashboard");
-    const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
     email: "",
     password: "",
     remember: false,
@@ -21,20 +23,26 @@ export const LoginPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-  // Simulate successful login
-  localStorage.setItem("isAuthenticated", "true");
-
-  // Redirect to dashboard
-  navigate("/dashboard", { replace: true });
-};
+    try {
+      await login(formData.email, formData.password);
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-indigo-200 px-4">
       <div className="w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden grid md:grid-cols-2">
-        
         {/* Left Section - Branding */}
         <div className="hidden md:flex flex-col justify-center items-center bg-indigo-600 text-white p-10">
           <Users size={60} className="mb-4" />
@@ -49,9 +57,13 @@ export const LoginPage = () => {
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
             Welcome Back 👋
           </h2>
-          <p className="text-gray-500 mb-6">
-            Please login to your account
-          </p>
+          <p className="text-gray-500 mb-6">Please login to your account</p>
+
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
@@ -118,9 +130,10 @@ export const LoginPage = () => {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200"
+              disabled={isLoading}
+              className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {isLoading ? "Logging in..." : "Login"}
             </button>
 
             {/* Divider */}
@@ -132,7 +145,7 @@ export const LoginPage = () => {
 
             {/* Sign Up Redirect */}
             <p className="text-center text-sm text-gray-600">
-              Don’t have an account?{" "}
+              Don't have an account?{" "}
               <Link
                 to="/signup"
                 className="text-indigo-600 font-medium hover:underline"

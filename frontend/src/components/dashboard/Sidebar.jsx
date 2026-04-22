@@ -4,6 +4,7 @@ import {
   Users,
   CheckSquare,
   FolderOpen,
+  FolderKanban,
   Settings,
   GraduationCap,
 } from "lucide-react"
@@ -11,6 +12,7 @@ import { Link, useLocation } from "react-router-dom"
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
+  { icon: FolderKanban, label: "Projects", href: "/projects" },
   { icon: Users, label: "Teams", href: "/teams" },
   { icon: CheckSquare, label: "Tasks", href: "/tasks" },
   { icon: FolderOpen, label: "Files", href: "/files" },

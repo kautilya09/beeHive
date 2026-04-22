@@ -1,27 +1,47 @@
+import express from "express";
 import cors from "cors";
-import express from 'express';
-import chalk from 'chalk';
-import userRoutes from './api/v1/routes/user-routes.js'
-const app=express();
+import chalk from "chalk";
+import dotenv from "dotenv";
+import { connectDB } from "./src/config/db.js";
+
+import authRoutes from "./src/routes/auth.js";
+import profileRoutes from "./src/routes/profile.js";
+import projectRoutes from "./src/routes/projects.js";
+import dashboardRoutes from "./src/routes/dashboard.js";
+
+dotenv.config();
+
+const app = express();
+
+// Middleware
 app.use(cors());
-//console.log("Express", typeof express); will return that express is a function
-//console.log("App", typeof app); will return that app is a function inside express!!
-// trying app routes which are now imported using import... 
-// app.get('/',(req,res)=>{
-//     res.send('<h1>Hello User</h1>')
-// })
-// app.get('/Login',(req,res)=>{
-//     res.send('<h1>You are Logged in!</h1>')
-// })
-app.use('/api/v1/user', userRoutes)
-app.get("/test", (req,res) => {
-    res.json({message: "Backend working" });
+app.use(express.json());
+
+// Connect to MongoDB
+connectDB();
+
+// Routes
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/profile", profileRoutes);
+app.use("/api/v1/projects", projectRoutes);
+app.use("/api/v1/dashboard", dashboardRoutes);
+
+// Health check
+app.get("/test", (req, res) => {
+  res.json({ message: "Backend working" });
 });
-const server=app.listen(2026,(err)=>{
-    if(err){
-        console.log(chalk.redBright("Server Crash!!",err));
-    }
-    else{
-        console.log(chalk.greenBright.bold("Node has started using port:",server.address().port)); // A node in distributed servers has started
-    }
-})
+
+// Start server
+const PORT = process.env.PORT || 2026;
+const server = app.listen(PORT, (err) => {
+  if (err) {
+    console.log(chalk.redBright("Server Crash!!", err));
+  } else {
+    console.log(
+      chalk.greenBright.bold(
+        "🚀 Node has started using port:",
+        server.address().port
+      )
+    );
+  }
+});

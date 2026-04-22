@@ -2,9 +2,20 @@ import { Bell, ChevronDown } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "../../context/AuthContext"
 
 export function Header() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+
+  const displayName = user?.name || "User"
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2)
+
   return (
     <div className="flex items-center gap-4">
       <Button
@@ -17,23 +28,22 @@ export function Header() {
         <span className="sr-only">Notifications</span>
       </Button>
 
-          <Button
-            onClick={()=> navigate("/settings")}
-            variant="ghost"
-            className="flex items-center gap-3 px-2 hover:bg-secondary"
-          >
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <div className="hidden flex-col items-start sm:flex">
-              <span className="text-sm font-medium text-foreground">
-                John Doe
-              </span>
-              <span className="text-xs text-muted-foreground">Student</span>
-            </div>
-            <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" />
-          </Button>
+      <Button
+        onClick={() => navigate("/settings")}
+        variant="ghost"
+        className="flex items-center gap-3 px-2 hover:bg-secondary"
+      >
+        <Avatar className="h-8 w-8">
+          <AvatarFallback>{initials}</AvatarFallback>
+        </Avatar>
+        <div className="hidden flex-col items-start sm:flex">
+          <span className="text-sm font-medium text-foreground">
+            {displayName}
+          </span>
+          <span className="text-xs text-muted-foreground">Student</span>
+        </div>
+        <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" />
+      </Button>
     </div>
   )
 }
