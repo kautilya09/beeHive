@@ -36,7 +36,7 @@ function DashboardLayout() {
               </svg>
               <input
                 type="text"
-                placeholder="Search tasks, teams, files..."
+                placeholder="Search projects, tasks..."
                 className="h-10 w-64 rounded-lg border border-border bg-secondary pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary md:w-80"
               />
             </div>

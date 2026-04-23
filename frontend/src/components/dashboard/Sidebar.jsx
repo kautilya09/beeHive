@@ -1,9 +1,7 @@
 import { cn } from "../../lib/utils"
 import {
   LayoutDashboard,
-  Users,
   CheckSquare,
-  FolderOpen,
   FolderKanban,
   Settings,
   GraduationCap,
@@ -13,9 +11,7 @@ import { Link, useLocation } from "react-router-dom"
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: FolderKanban, label: "Projects", href: "/projects" },
-  { icon: Users, label: "Teams", href: "/teams" },
   { icon: CheckSquare, label: "Tasks", href: "/tasks" },
-  { icon: FolderOpen, label: "Files", href: "/files" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ]
 
@@ -43,7 +39,8 @@ export function Sidebar() {
 
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = location.pathname === item.href
+          const isActive = location.pathname === item.href ||
+            (item.href === "/projects" && location.pathname.startsWith("/projects"))
 
           return (
             <Link

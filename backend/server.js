@@ -8,6 +8,7 @@ import authRoutes from "./src/routes/auth.js";
 import profileRoutes from "./src/routes/profile.js";
 import projectRoutes from "./src/routes/projects.js";
 import dashboardRoutes from "./src/routes/dashboard.js";
+import taskRoutes from "./src/routes/tasks.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
+app.use("/api/v1/tasks", taskRoutes);
 
 // Health check
 app.get("/test", (req, res) => {

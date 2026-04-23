@@ -58,6 +58,14 @@ export const projectsAPI = {
     api.patch(`/projects/${projectId}/applicants/${userId}`, { status }),
 };
 
+// ─── Tasks ───────────────────────────────────────────────────────────────────
+export const tasksAPI = {
+  getAll: () => api.get("/tasks"),
+  create: (data) => api.post("/tasks", data),
+  update: (id, data) => api.patch(`/tasks/${id}`, data),
+  delete: (id) => api.delete(`/tasks/${id}`),
+};
+
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 export const dashboardAPI = {
   getMe: () => api.get("/dashboard/me"),

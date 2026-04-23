@@ -9,9 +9,7 @@ import RootLayout from "./Layout/RootLayout";
 import DashboardLayout from "./Layout/DashboardLayout";
 
 import DashboardPage from "./Pages/DashboardPage";
-import TeamsPage from "./Pages/TeamsPage";
 import TasksPage from "./Pages/TasksPage";
-import FilesPage from "./Pages/FilesPage";
 import SettingsPage from "./Pages/SettingsPage";
 import BrowseProjectsPage from "./Pages/BrowseProjectsPage";
 import CreateProjectPage from "./Pages/CreateProjectPage";
@@ -69,9 +67,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/teams" element={<TeamsPage />} />
             <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/files" element={<FilesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/projects" element={<BrowseProjectsPage />} />
             <Route path="/projects/create" element={<CreateProjectPage />} />

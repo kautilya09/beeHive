@@ -4,58 +4,48 @@ import {
   Clock,
   Users,
   FolderOpen,
-  TrendingUp,
-  TrendingDown,
 } from "lucide-react"
 import { cn } from "../../lib/utils"
 
-const stats = [
-  {
-    id: "1",
-    label: "Tasks Completed",
-    value: "24",
-    change: "+12%",
-    trend: "up",
-    icon: CheckCircle,
-    color: "text-primary",
-    bgColor: "bg-primary/10",
-  },
-  {
-    id: "2",
-    label: "In Progress",
-    value: "8",
-    change: "+3%",
-    trend: "up",
-    icon: Clock,
-    color: "text-chart-3",
-    bgColor: "bg-chart-3/10",
-  },
-  {
-    id: "3",
-    label: "Team Members",
-    value: "6",
-    change: "0%",
-    trend: "neutral",
-    icon: Users,
-    color: "text-chart-2",
-    bgColor: "bg-chart-2/10",
-  },
-  {
-    id: "4",
-    label: "Files Shared",
-    value: "42",
-    change: "-5%",
-    trend: "down",
-    icon: FolderOpen,
-    color: "text-chart-4",
-    bgColor: "bg-chart-4/10",
-  },
-]
+export function StatsCards({ stats, profile }) {
+  const statItems = [
+    {
+      id: "1",
+      label: "Projects Created",
+      value: String(stats?.totalCreated ?? 0),
+      icon: FolderOpen,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+    },
+    {
+      id: "2",
+      label: "Join Requests",
+      value: String(stats?.totalJoinRequests ?? 0),
+      icon: Clock,
+      color: "text-chart-3",
+      bgColor: "bg-chart-3/10",
+    },
+    {
+      id: "3",
+      label: "Pending Requests",
+      value: String(stats?.pendingRequests ?? 0),
+      icon: CheckCircle,
+      color: "text-chart-2",
+      bgColor: "bg-chart-2/10",
+    },
+    {
+      id: "4",
+      label: "Skills",
+      value: String(profile?.skills?.length ?? 0),
+      icon: Users,
+      color: "text-chart-4",
+      bgColor: "bg-chart-4/10",
+    },
+  ]
 
-export function StatsCards() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => {
+      {statItems.map((stat) => {
         const Icon = stat.icon
 
         return (
@@ -71,21 +61,6 @@ export function StatsCards() {
                 )}
               >
                 <Icon className={cn("h-5 w-5", stat.color)} />
-              </div>
-
-              <div
-                className={cn(
-                  "flex items-center gap-1 text-xs font-medium",
-                  stat.trend === "up"
-                    ? "text-primary"
-                    : stat.trend === "down"
-                    ? "text-destructive"
-                    : "text-muted-foreground"
-                )}
-              >
-                {stat.trend === "up" && <TrendingUp className="h-3 w-3" />}
-                {stat.trend === "down" && <TrendingDown className="h-3 w-3" />}
-                {stat.change}
               </div>
             </div>
 

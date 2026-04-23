@@ -1,8 +1,9 @@
 import { Card } from "../ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
-import { MoreHorizontal, Calendar, MessageSquare } from "lucide-react"
+import { MoreHorizontal, Calendar, MessageSquare, ClipboardList, Loader2 } from "lucide-react"
 import { cn } from "../../lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { tasksAPI } from "../../lib/api"
 
 const priorityColors = {
   low: "bg-chart-2/20 text-chart-2",
@@ -14,12 +15,12 @@ const columns = [
   {id: "inprogress", title:"In Progress", color: "bg-blue-500"},
   {id: "done", title: "Done", color: "bg-green-500"},
 ]
-function TaskCard({ task, updateTaskStatus, deleteTask, editable }) {
+function TaskCard({ task, updateTaskStatus, deleteTask }) {
   return (
     <Card className="group cursor-pointer border-border bg-card p-4 hover:border-primary/50">
       <div className="flex items-start justify-between">
         <div className="flex flex-wrap gap-2">
-          {task.tags.map((tag) => (
+          {(task.tags || []).map((tag) => (
             <span
               key={tag}
               className="rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground"
@@ -30,7 +31,7 @@ function TaskCard({ task, updateTaskStatus, deleteTask, editable }) {
         </div>
 
           <button 
-          onClick={() => deleteTask(task.id)}
+          onClick={() => deleteTask(task._id)}
           className="rounded p-1 opacity-0 hover:bg-red-500/20 group-hover:opacity-100">
             <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-red-400" />
           </button>
@@ -44,7 +45,7 @@ function TaskCard({ task, updateTaskStatus, deleteTask, editable }) {
         <div className="mt-3 flex gap-2">
           {task.status === "todo" && (
             <button
-              onClick={() => updateTaskStatus(task.id, "inprogress")}
+              onClick={() => updateTaskStatus(task._id, "inprogress")}
               className="transition-all duration-200 rounded-md border border-blue-500/40 px-3 py-1 text-xs text-blue-400 hover:bg-blue-500/20 hover:scale-105 hover:shadow-md"
             >
               In Progress →
@@ -52,7 +53,7 @@ function TaskCard({ task, updateTaskStatus, deleteTask, editable }) {
           )}
           {task.status === "inprogress" && (
             <button
-              onClick={() => updateTaskStatus(task.id, "done")}
+              onClick={() => updateTaskStatus(task._id, "done")}
               className="transition-all duration-200 rounded-md border border-green-500/40 px-3 py-1 text-xs text-green-400 hover:bg-green-500/20 hover:scale-105 hover:shadow-md"
             >
               Done →
@@ -61,14 +62,12 @@ function TaskCard({ task, updateTaskStatus, deleteTask, editable }) {
         </div>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5" />
-            {task.dueDate}
-          </div>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <MessageSquare className="h-3.5 w-3.5" />
-            {task.comments}
-          </div>
+          {task.dueDate && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Calendar className="h-3.5 w-3.5" />
+              {task.dueDate}
+            </div>
+          )}
         </div>
 
         <span
@@ -80,88 +79,101 @@ function TaskCard({ task, updateTaskStatus, deleteTask, editable }) {
           {task.priority}
         </span>
       </div>
-
-      <div className="mt-4 flex -space-x-2">
-        {task.assignees.slice(0, 3).map((assignee, index) => (
-          <Avatar key={index} className="h-7 w-7 border-2 border-card">
-            <AvatarImage src={assignee.image} />
-            <AvatarFallback className="text-xs">
-              {assignee.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-        ))}
-      </div>
     </Card>
   )
 }
 
 export function TaskBoard( {editable = false} ) {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Research project proposal", 
-      description: "Draft initial proposal",
-      status: "todo",
-      priority: "high",
-      tags: ["Research"],
-      dueDate: "Mar 30",
-      comments: 2,
-      assignees: [],
-    },
-    {
-      id: 2,
-      title: "Literature Review", 
-      description: "Collect sources",
-      status: "inprogress",
-      priority: "medium",
-      tags: ["Writing"],
-      dueDate: "Apr 2",
-      comments: 1,
-      assignees: [],
-    },
-  ])
+  const [tasks, setTasks] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const [newTask, setNewTask] = useState({
     title:"",
     description:"",
     priority: "low",
   })
+
+  // Fetch tasks from backend on mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await tasksAPI.getAll()
+        setTasks(res.data)
+      } catch (err) {
+        console.error("Failed to fetch tasks:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTasks()
+  }, [])
   
-  const addTask = () => {
+  const addTask = async () => {
     if (!newTask.title.trim()) return
 
-    const task = {
-      id: Date.now(),
-      title: newTask.title, 
-      description: newTask.description,
-      status: "todo",
-      priority: newTask.priority,
-      tags: ["General"],
-      dueDate: "Apr 5",
-      comments: 0,
-      assignees: [],
+    try {
+      const res = await tasksAPI.create({
+        title: newTask.title,
+        description: newTask.description,
+        priority: newTask.priority,
+        tags: ["General"],
+      })
+
+      setTasks(prev => [res.data, ...prev])
+      setNewTask({
+        title:"",
+        description: "",
+        priority: "low",
+      })
+    } catch (err) {
+      console.error("Failed to create task:", err)
     }
-
-    setTasks(prev => [...prev, task])
-
-    setNewTask({
-      title:"",
-      description: "",
-      priority: "low",
-    })
   }
 
-  const updateTaskStatus = (id, newStatus) => {
+  const updateTaskStatus = async (id, newStatus) => {
+    // Optimistic update
     setTasks(prev =>
       prev.map(task =>
-        task.id === id ? {...task, status: newStatus} : task
+        task._id === id ? {...task, status: newStatus} : task
       )
+    )
+
+    try {
+      await tasksAPI.update(id, { status: newStatus })
+    } catch (err) {
+      console.error("Failed to update task:", err)
+      // Revert on failure
+      const res = await tasksAPI.getAll()
+      setTasks(res.data)
+    }
+  }
+
+  const deleteTask = async (id) => {
+    // Optimistic update
+    const previousTasks = tasks
+    setTasks(prev => prev.filter(task => task._id !== id))
+
+    try {
+      await tasksAPI.delete(id)
+    } catch (err) {
+      console.error("Failed to delete task:", err)
+      setTasks(previousTasks)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-foreground">Task Board</h2>
+        <div className="flex items-center justify-center p-10">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      </div>
     )
   }
 
-  const deleteTask = (id) => {
-    setTasks(prev => prev.filter(task => task.id !== id))
-  }
+  const allEmpty = tasks.length === 0
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -211,36 +223,49 @@ export function TaskBoard( {editable = false} ) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {columns.map((column) => (
-          <div key={column.id} className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className={cn("h-2 w-2 rounded-full", column.color)} />
-              <h3 className="text-sm font-medium text-foreground">
-                {column.title}
-              </h3>
-              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-                {tasks.filter(task => task.status === column.id).length}
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {tasks
-                .filter(task => task.status === column.id)
-                .map(task=>(
-                  <TaskCard 
-                  key={task.id} 
-                  task={task} 
-                  updateTaskStatus = {updateTaskStatus}
-                  deleteTask = {deleteTask}
-                  editable={editable}
-                  />
-                ))
-              }
-            </div>
+      {allEmpty && !editable ? (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-10 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <ClipboardList className="h-7 w-7 text-primary" />
           </div>
-        ))}
-      </div>
+          <h3 className="mt-4 text-base font-semibold text-foreground">
+            No tasks yet
+          </h3>
+          <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+            Head to the Tasks page to create and manage your team tasks.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {columns.map((column) => (
+            <div key={column.id} className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className={cn("h-2 w-2 rounded-full", column.color)} />
+                <h3 className="text-sm font-medium text-foreground">
+                  {column.title}
+                </h3>
+                <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+                  {tasks.filter(task => task.status === column.id).length}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {tasks
+                  .filter(task => task.status === column.id)
+                  .map(task=>(
+                    <TaskCard 
+                    key={task._id} 
+                    task={task} 
+                    updateTaskStatus={updateTaskStatus}
+                    deleteTask={deleteTask}
+                    />
+                  ))
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

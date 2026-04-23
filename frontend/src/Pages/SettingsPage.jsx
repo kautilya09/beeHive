@@ -1,4 +1,4 @@
-import { User, Bell, Shield, Palette, Globe, LogOut } from "lucide-react"
+import { User, Bell, Shield, Palette, Globe, LogOut, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
@@ -15,26 +15,40 @@ const settingsSections = [
 function SettingsPage() {
   const [activeSection, setActiveSection] = useState("Profile")
   const navigate = useNavigate()
-  const { user, logout, refreshUser } = useAuth()
+  const { logout, refreshUser } = useAuth()
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState("")
+  const [loadingProfile, setLoadingProfile] = useState(true)
 
+  // Profile data fetched directly from backend
+  const [backendUser, setBackendUser] = useState(null)
   const [profileData, setProfileData] = useState({
     name: "", branch: "", year: "", skills: "", interests: "", bio: "",
   })
 
+  // Fetch fresh profile from backend on mount
   useEffect(() => {
-    if (user) {
-      setProfileData({
-        name: user.name || "",
-        branch: user.branch || "",
-        year: user.year || "",
-        skills: (user.skills || []).join(", "),
-        interests: (user.interests || []).join(", "),
-        bio: user.bio || "",
-      })
+    const fetchProfile = async () => {
+      try {
+        const res = await profileAPI.getMe()
+        const u = res.data
+        setBackendUser(u)
+        setProfileData({
+          name: u.name || "",
+          branch: u.branch || "",
+          year: u.year || "",
+          skills: (u.skills || []).join(", "),
+          interests: (u.interests || []).join(", "),
+          bio: u.bio || "",
+        })
+      } catch (err) {
+        console.error("Failed to load profile:", err)
+      } finally {
+        setLoadingProfile(false)
+      }
     }
-  }, [user])
+    fetchProfile()
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -45,7 +59,7 @@ function SettingsPage() {
     setSaving(true)
     setSaveMsg("")
     try {
-      await profileAPI.updateMe({
+      const res = await profileAPI.updateMe({
         name: profileData.name,
         branch: profileData.branch,
         year: profileData.year ? parseInt(profileData.year) : undefined,
@@ -53,6 +67,7 @@ function SettingsPage() {
         interests: profileData.interests.split(",").map(s => s.trim()).filter(Boolean),
         bio: profileData.bio,
       })
+      setBackendUser(res.data)
       await refreshUser()
       setSaveMsg("Profile saved!")
     } catch { setSaveMsg("Failed to save.") }
@@ -63,7 +78,7 @@ function SettingsPage() {
     email: true, push: true, taskUpdates: false, teamMessages: true,
   })
 
-  const initials = (user?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+  const initials = (backendUser?.name || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
 
   return (
     <main className="p-4 lg:p-6">
@@ -93,49 +108,58 @@ function SettingsPage() {
           {activeSection === "Profile" && (
             <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="mb-6 text-lg font-semibold text-foreground">Profile Information</h2>
-              <div className="mb-6 flex items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{initials}</div>
-                <div>
-                  <p className="font-medium text-foreground">{user?.name}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+
+              {loadingProfile ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
-              </div>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Full Name</label>
-                    <input value={profileData.name} onChange={(e) => setProfileData({...profileData, name: e.target.value})} className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+              ) : (
+                <>
+                  <div className="mb-6 flex items-center gap-4">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{initials}</div>
+                    <div>
+                      <p className="font-medium text-foreground">{backendUser?.name}</p>
+                      <p className="text-xs text-muted-foreground">{backendUser?.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Branch</label>
-                    <input value={profileData.branch} onChange={(e) => setProfileData({...profileData, branch: e.target.value})} placeholder="e.g. CSE" className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-1.5 block text-sm font-medium text-foreground">Full Name</label>
+                        <input value={profileData.name} onChange={(e) => setProfileData({...profileData, name: e.target.value})} className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-sm font-medium text-foreground">Branch</label>
+                        <input value={profileData.branch} onChange={(e) => setProfileData({...profileData, branch: e.target.value})} placeholder="e.g. CSE" className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-1.5 block text-sm font-medium text-foreground">Year</label>
+                        <input type="number" min={1} max={4} value={profileData.year} onChange={(e) => setProfileData({...profileData, year: e.target.value})} className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-sm font-medium text-foreground">Skills (comma separated)</label>
+                        <input value={profileData.skills} onChange={(e) => setProfileData({...profileData, skills: e.target.value})} placeholder="React, Node.js, Python" className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-foreground">Interests (comma separated)</label>
+                      <input value={profileData.interests} onChange={(e) => setProfileData({...profileData, interests: e.target.value})} placeholder="AI, Web Dev, Robotics" className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-foreground">Bio</label>
+                      <textarea rows={3} value={profileData.bio} onChange={(e) => setProfileData({...profileData, bio: e.target.value})} placeholder="Tell something about yourself..." className="w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none" />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button onClick={handleProfileSave} disabled={saving} className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
+                        {saving ? "Saving..." : "Save Changes"}
+                      </button>
+                      {saveMsg && <span className="text-sm text-muted-foreground">{saveMsg}</span>}
+                    </div>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Year</label>
-                    <input type="number" min={1} max={4} value={profileData.year} onChange={(e) => setProfileData({...profileData, year: e.target.value})} className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-foreground">Skills (comma separated)</label>
-                    <input value={profileData.skills} onChange={(e) => setProfileData({...profileData, skills: e.target.value})} placeholder="React, Node.js, Python" className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">Interests (comma separated)</label>
-                  <input value={profileData.interests} onChange={(e) => setProfileData({...profileData, interests: e.target.value})} placeholder="AI, Web Dev, Robotics" className="h-10 w-full rounded-lg border border-border bg-secondary px-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">Bio</label>
-                  <textarea rows={3} value={profileData.bio} onChange={(e) => setProfileData({...profileData, bio: e.target.value})} placeholder="Tell something about yourself..." className="w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <button onClick={handleProfileSave} disabled={saving} className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50">
-                    {saving ? "Saving..." : "Save Changes"}
-                  </button>
-                  {saveMsg && <span className="text-sm text-muted-foreground">{saveMsg}</span>}
-                </div>
-              </div>
+                </>
+              )}
             </div>
           )}
 
