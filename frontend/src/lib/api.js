@@ -52,6 +52,7 @@ export const profileAPI = {
 export const projectsAPI = {
   create: (data) => api.post("/projects", data),
   getAll: () => api.get("/projects"),
+  getMine: () => api.get("/projects/mine"),
   getById: (id) => api.get(`/projects/${id}`),
   joinRequest: (id) => api.post(`/projects/${id}/join`),
   manageApplicant: (projectId, userId, status) =>
@@ -61,6 +62,7 @@ export const projectsAPI = {
 // ─── Tasks ───────────────────────────────────────────────────────────────────
 export const tasksAPI = {
   getAll: () => api.get("/tasks"),
+  getByProject: (projectId) => api.get(`/tasks/project/${projectId}`),
   create: (data) => api.post("/tasks", data),
   update: (id, data) => api.patch(`/tasks/${id}`, data),
   delete: (id) => api.delete(`/tasks/${id}`),

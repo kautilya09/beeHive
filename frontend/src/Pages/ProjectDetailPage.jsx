@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { projectsAPI } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { ArrowLeft, Users, Calendar, Loader2, Check, X } from "lucide-react";
+import { TaskBoard } from "../components/dashboard/TaskBoard";
 
 function ProjectDetailPage() {
   const { id } = useParams();
@@ -122,6 +123,11 @@ function ProjectDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Task Board */}
+      <div className="rounded-xl border border-border bg-card p-6 mt-6">
+        <TaskBoard editable={isOwner || project.members?.some(m => m._id === uid || m === uid)} projectId={project._id} />
+      </div>
     </div>
   );
 }

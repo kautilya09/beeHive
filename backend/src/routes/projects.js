@@ -38,6 +38,23 @@ router.post("/", protect, async (req, res) => {
   }
 });
 
+// ─── List user's projects (owned + member) ───────────────────────────────────
+router.get("/mine", protect, async (req, res) => {
+  try {
+    const projects = await Project.find({
+      $or: [{ owner: req.user._id }, { members: req.user._id }],
+    })
+      .populate("owner", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json(projects);
+  } catch (error) {
+    console.error("List my projects error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // ─── List all projects ───────────────────────────────────────────────────────
 router.get("/", async (req, res) => {
   try {
